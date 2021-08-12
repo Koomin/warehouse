@@ -1,3 +1,4 @@
 -r base.txt
 
+pre-commit==2.14.0
 django-debug-toolbar==3.2.1
