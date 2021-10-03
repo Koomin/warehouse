@@ -1,9 +1,13 @@
 from django.db import models
-from simple_history.models import HistoricalRecords
+from warehouse.models import WarehouseModel
 
 
-class ProductCategory(models.Model):
-    name = models.CharField(max_length=55)
-    created = models.DateTimeField(auto_now_add=True)
-    modified = models.DateTimeField(auto_now=True)
-    history = HistoricalRecords()
+class ProductCategory(WarehouseModel):
+    name = models.CharField(max_length=55, null=False, blank=False)
+    product_code = models.CharField(max_length=255, null=False, blank=False)
+
+
+class Product(WarehouseModel):
+    name = models.CharField(max_length=255, null=False, blank=False)
+    code = models.CharField(max_length=50, null=False, blank=False)
+    optima_id = models.IntegerField(null=False, blank=False)
