@@ -1,5 +1,5 @@
 """
-ASGI config for warehouse project.
+ASGI config for warehouse_app project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
