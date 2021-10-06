@@ -16,12 +16,14 @@ services:
       - db
     command: gunicorn warehouse_app.config.wsgi:application --bind 0.0.0.0:8000
   db:
+      restart: always
       image: postgres:13.0-alpine
       volumes:
         - postgres_data:/var/lib/postgresql/data/
       env_file:
         - ./.env.prod.db
   nginx:
+    restart: always
     build: ./nginx
     volumes:
       - static_volume:/home/app/web/warehouse_app/staticfiles
