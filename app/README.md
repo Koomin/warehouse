@@ -4,3 +4,5 @@ docker-compose -f docker-compose.prod.yml up -d --build<br>
 docker-compose down -v<br>
 <b>Development server</b><br>
 docker-compose up -d --build<br>
+<b>Shell in container</b><br>
+docker-compose exec web sh
