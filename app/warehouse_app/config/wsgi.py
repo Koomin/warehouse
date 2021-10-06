@@ -1,5 +1,5 @@
 """
-WSGI config for warehouse project.
+WSGI config for warehouse_app project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

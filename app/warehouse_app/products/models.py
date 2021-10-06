@@ -1,5 +1,5 @@
 from django.db import models
-from warehouse.models import WarehouseModel
+from warehouse_app.warehouse.models import WarehouseModel
 
 
 class Unit(WarehouseModel):

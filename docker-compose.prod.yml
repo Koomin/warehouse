@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    restart: always
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/home/app/web/warehouse_app/staticfiles
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+    command: gunicorn warehouse_app.config.wsgi:application --bind 0.0.0.0:8000
+  db:
+      image: postgres:13.0-alpine
+      volumes:
+        - postgres_data:/var/lib/postgresql/data/
+      env_file:
+        - ./.env.prod.db
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/warehouse_app/staticfiles
+    ports:
+      - 1337:80
+    depends_on:
+      - web
+volumes:
+  postgres_data:
+  static_volume:

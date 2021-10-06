@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import ProductCategory, Product, Unit
-from warehouse.admin import WarehouseAdmin
+from warehouse_app.warehouse.admin import WarehouseAdmin
 
 
 class ProductCategoryAdmin(WarehouseAdmin):
