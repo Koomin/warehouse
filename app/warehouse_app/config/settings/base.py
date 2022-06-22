@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'simple_history',
     'warehouse_app.warehouse',
     'warehouse_app.products',
+    'warehouse_app.utils'
 
 ]
 
@@ -126,3 +127,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+OPTIMA_DB = {
+    'SERVER': 'tcp:10.8.0.1',
+    'DATABASE': 'CDN_TEST_PIEKARNIA',
+    'UID': 'sa',
+    'PASSWORD': 'Test123456'
+}
