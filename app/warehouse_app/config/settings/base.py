@@ -129,8 +129,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 OPTIMA_DB = {
-    'SERVER': 'tcp:10.8.0.1',
-    'DATABASE': 'CDN_TEST_PIEKARNIA',
-    'UID': 'sa',
-    'PASSWORD': 'Test123456'
+    'SERVER': get_env_variable('OPTIMA_SERVER'),
+    'DATABASE': get_env_variable('OPTIMA_DB'),
+    'UID': get_env_variable('OPTIMA_USER'),
+    'PASSWORD': get_env_variable('OPTIMA_PASSWORD')
 }
