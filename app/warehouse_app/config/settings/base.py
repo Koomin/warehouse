@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'warehouse_app.products',
     'warehouse_app.utils',
     'warehouse_app.stores',
+    'warehouse_app.documents',
 
 ]
 
