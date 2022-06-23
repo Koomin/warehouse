@@ -11,11 +11,9 @@ services:
   db:
       image: postgres:13.0-alpine
       volumes:
-        - postgres_data:/var/lib/postgresql/data/
+        - /Users/komin/.pgdata:/var/lib/postgresql/data
+
       environment:
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
         - POSTGRES_DB=warehouse
-
-volumes:
-  postgres_data:
