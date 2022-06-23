@@ -7,5 +7,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         connection = OptimaConnection()
         for row in connection.execute_query(OptimaProduct.query):
-            product = OptimaProduct(row)
+            product = OptimaProduct(row, create=False)
             print(product)

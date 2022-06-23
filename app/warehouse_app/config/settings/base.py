@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'simple_history',
     'warehouse_app.warehouse',
     'warehouse_app.products',
-    'warehouse_app.utils'
+    'warehouse_app.utils',
+    'warehouse_app.stores',
 
 ]
 
