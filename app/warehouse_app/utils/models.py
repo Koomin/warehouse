@@ -1,3 +1,4 @@
+from warehouse_app.documents.models import DocumentType
 from warehouse_app.stores.models import Store
 from warehouse_app.products.models import Product, Unit
 
@@ -104,5 +105,43 @@ class OptimaStore:
                 'description': self.optima_description,
                 'register': self.optima_register,
                 'status': self.optima_inactive
+            }
+        )
+
+
+class OptimaDocumentType:
+    query = 'SELECT DDf_DDfID, DDf_Klasa, DDf_Symbol, DDf_Nazwa FROM CDN.DokDefinicje'
+
+    def __init__(self, data_row, create=True):
+        self.data_row = data_row
+        self.optima_id = self.get_optima_id()
+        self.optima_short_name = self.get_optima_short_name()
+        self.optima_name = self.get_optima_name()
+        self.optima_class = self.get_optima_class()
+        if create:
+            self.create_document_type()
+
+    def __str__(self):
+        return self.optima_name
+
+    def get_optima_id(self):
+        return self.data_row[0]
+
+    def get_optima_class(self):
+        return self.data_row[1]
+
+    def get_optima_short_name(self):
+        return self.data_row[2]
+
+    def get_optima_name(self):
+        return self.data_row[3]
+
+    def create_document_type(self):
+        DocumentType.objects.update_or_create(
+            optima_id=self.optima_id,
+            defaults={
+                'short_name': self.optima_short_name,
+                'name': self.optima_name,
+                'optima_class': self.optima_class,
             }
         )
