@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+from warehouse_app.products.models import Product, Unit
 
 
 class OptimaProduct:
@@ -17,6 +18,7 @@ class OptimaProduct:
         self.optima_unit_collective = self.get_optima_unit_collective()
         self.optima_unit_converter = self.get_optima_unit_converter()
         self.optima_unit_converter_collective = self.get_optima_unit_converter_collective()
+        self.create_product()
 
     def __str__(self):
         return f'{self.optima_id} {self.optima_name} - {self.optima_code},' \
@@ -42,3 +44,17 @@ class OptimaProduct:
 
     def get_optima_unit_converter_collective(self):
         return self.data_row[6]
+
+    def get_or_create_unit(self):
+        unit, created = Unit.objects.get_or_create(
+            short_name=self.optima_unit
+        )
+        return unit
+
+    def create_product(self):
+        Product.objects.create(
+            name=self.optima_name,
+            code=self.optima_code,
+            optima_id=self.optima_id,
+            unit=self.get_or_create_unit()
+        )

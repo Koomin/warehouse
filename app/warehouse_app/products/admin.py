@@ -15,8 +15,8 @@ class ProductAdmin(WarehouseAdmin):
 
 
 class UnitAdmin(WarehouseAdmin):
-    list_display = ('short_name', 'name')
-    search_fields = ['short_name', 'name']
+    list_display = ('short_name',)
+    search_fields = ['short_name']
 
 
 admin.site.register(Unit, UnitAdmin)
