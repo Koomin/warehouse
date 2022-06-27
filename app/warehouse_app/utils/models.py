@@ -110,7 +110,7 @@ class OptimaStore:
 
 
 class OptimaDocumentType:
-    query = 'SELECT DDf_DDfID, DDf_Klasa, DDf_Symbol, DDf_Nazwa FROM CDN.DokDefinicje'
+    query = 'SELECT DDf_DDfID, DDf_Klasa, DDf_Symbol, DDf_Nazwa, DDf_Numeracja FROM CDN.DokDefinicje'
 
     def __init__(self, data_row, create=True):
         self.data_row = data_row
@@ -118,6 +118,7 @@ class OptimaDocumentType:
         self.optima_short_name = self.get_optima_short_name()
         self.optima_name = self.get_optima_name()
         self.optima_class = self.get_optima_class()
+        self.optima_numbering = self.get_optima_numbering()
         if create:
             self.create_document_type()
 
@@ -136,6 +137,9 @@ class OptimaDocumentType:
     def get_optima_name(self):
         return self.data_row[3]
 
+    def get_optima_numbering(self):
+        return self.data_row[4]
+
     def create_document_type(self):
         DocumentType.objects.update_or_create(
             optima_id=self.optima_id,
@@ -143,5 +147,6 @@ class OptimaDocumentType:
                 'short_name': self.optima_short_name,
                 'name': self.optima_name,
                 'optima_class': self.optima_class,
+                'numbering': self.optima_numbering
             }
         )
