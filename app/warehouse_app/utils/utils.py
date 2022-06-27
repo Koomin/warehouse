@@ -9,7 +9,8 @@ class OptimaConnection:
             f"Server={settings.OPTIMA_DB['SERVER']};"
             f"Database={settings.OPTIMA_DB['DATABASE']};"
             f"uid={settings.OPTIMA_DB['UID']};"
-            f"pwd={settings.OPTIMA_DB['PASSWORD']}"
+            f"pwd={settings.OPTIMA_DB['PASSWORD']}",
+            autocommit=False
         )
         self.cursor = cnxn.cursor()
 
