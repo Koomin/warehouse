@@ -26,6 +26,8 @@ class WarehouseDocument:
     def _get_optima_id(self):
         return self.cursor.execute("SELECT @@Identity").fetchone()[0]
 
+    # TODO Change date in insert
+
     def export_to_optima(self):
         self.cursor.execute('INSERT INTO CDN.TraNag ('
                             'TrN_DDfId, TrN_TypDokumentu, TrN_NumerString, TrN_NumerNr,'
@@ -104,6 +106,8 @@ class WarehouseDocumentItem:
 
     def _get_optima_id(self):
         return self.cursor.execute("SELECT @@Identity").fetchone()[0]
+
+    #TODO Change date in insert
 
     def export_to_optima(self):
         self.cursor.execute('INSERT INTO CDN.TraElem ('
