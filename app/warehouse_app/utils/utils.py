@@ -12,6 +12,7 @@ class OptimaConnection:
             f"pwd={settings.OPTIMA_DB['PASSWORD']}",
             autocommit=False
         )
+
         self.cursor = self.cnxn.cursor()
 
     def execute_query(self, query: str):
