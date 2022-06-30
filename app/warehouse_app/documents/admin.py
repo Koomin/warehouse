@@ -23,3 +23,4 @@ class DocumentAdmin(WarehouseAdmin):
         'destination_store')
     inlines = [DocumentItemInline, ]
     autocomplete_fields = ['document_type', 'source_store', 'destination_store']
+    list_filter = ['document_type', ]

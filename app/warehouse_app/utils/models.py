@@ -146,7 +146,7 @@ class OptimaDocumentType:
         return self.data_row[3]
 
     def get_optima_numbering(self):
-        return self.data_row[4]
+        return self.data_row[4].replace('@brak/', '').replace('/@brak', '')
 
     def create_document_type(self):
         DocumentType.objects.update_or_create(

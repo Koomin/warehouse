@@ -51,7 +51,7 @@ class Document(WarehouseModel):
             self.optima_id = optima_id
             self.save()
             for idx, document_item in enumerate(self.document_items.all().order_by('pk')):
-                optima_document_item = WarehouseDocumentItem(idx+1, document_item, cursor)
+                optima_document_item = WarehouseDocumentItem(idx + 1, document_item, cursor)
                 optima_document_item_id = optima_document_item.export_to_optima()
                 document_item.optima_id = optima_document_item_id
                 document_item.save()
@@ -65,14 +65,13 @@ class Document(WarehouseModel):
 
     def recalculate_values(self):
         value_net = 0
-        value_gross = 0
         for document_item in self.document_items.all():
-            value_net += document_item.net_price * document_item.quantity
-            value_gross += document_item.gross_price * document_item.quantity
-        value_vat = value_gross - value_net
-        self.value_vat = value_vat
-        self.value_gross = value_gross
+            value_net += document_item.net_price
+
         self.value_net = value_net
+        self.value_gross = decimal.Decimal(self.value_net * decimal.Decimal(1.05)).quantize(
+            decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
+        self.value_vat = self.value_gross - self.value_net
         self.save()
 
 
@@ -83,11 +82,13 @@ class DocumentItem(WarehouseModel):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=False, blank=False,
                                 related_name='document_items')
     quantity = models.DecimalField(max_digits=12, decimal_places=4, null=False, blank=False)
-    net_price = models.DecimalField(max_digits=12, decimal_places=2)
-    gross_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=False)
+    net_price = models.DecimalField(max_digits=12, decimal_places=4, null=False, blank=True)
+    gross_price = models.DecimalField(max_digits=12, decimal_places=4, blank=True, null=False)
 
     def save(self, *args, **kwargs):
-        self.gross_price = decimal.Decimal(self.net_price * decimal.Decimal(1.05)).quantize(decimal.Decimal('.01'),
-                                                                                            rounding=decimal.ROUND_HALF_UP)
+        self.net_price = decimal.Decimal(self.net_price * self.quantity).quantize(
+            decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
+        self.gross_price = decimal.Decimal(self.net_price * self.quantity * decimal.Decimal(1.05)).quantize(
+            decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
         super().save(*args, **kwargs)
         self.document.recalculate_values()

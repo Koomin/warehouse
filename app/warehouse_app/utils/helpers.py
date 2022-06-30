@@ -19,8 +19,9 @@ class WarehouseDocument:
     def _get_current_number(self):
         query = "SELECT MAX(TrN_NumerNr) FROM CDN.TraNag WHERE TrN_DDfId={0} AND TrN_NumerString like '%/@numerS/{1}'"
         id = self.cursor.execute(query.format(self.document_type_optima_id, datetime.date.today().year)).fetchone()[0]
-        self.number_string = self.document_type_numbering.replace('@numerS', str(id))
-        return id + 1
+        new_id = id + 1
+        self.number_string = self.document_type_numbering.replace('@numerS', str(new_id))
+        return new_id
 
     def _get_optima_id(self):
         return self.cursor.execute("SELECT @@Identity").fetchone()[0]
