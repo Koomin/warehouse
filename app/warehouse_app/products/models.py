@@ -23,6 +23,7 @@ class Product(WarehouseModel):
     optima_id = models.PositiveIntegerField(null=False, blank=False)
     category = models.ForeignKey('ProductCategory', on_delete=models.CASCADE, null=True)
     unit = models.ForeignKey('Unit', on_delete=models.CASCADE, null=True, blank=False)
+    value = models.DecimalField(max_digits=12, decimal_places=4)
 
     def __str__(self):
         return f'{self.code} - {self.name}'

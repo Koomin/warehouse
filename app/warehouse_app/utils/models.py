@@ -4,8 +4,11 @@ from warehouse_app.products.models import Product, Unit
 
 
 class OptimaProduct:
-    query = 'SELECT Twr_TwrId, Twr_Kod, Twr_Nazwa, Twr_JM, Twr_JMZ, Twr_JMPrzelicznikL, Twr_JMPrzelicznikM' \
-            ' FROM CDN.Towary'
+    query = 'SELECT Towary.Twr_TwrId, Towary.Twr_Kod, Towary.Twr_Nazwa, Towary.Twr_JM, Towary.Twr_JMZ, ' \
+            'Towary.Twr_JMPrzelicznikL, Towary.Twr_JMPrzelicznikM, Ceny.TwC_Wartosc ' \
+            'FROM CDN.Towary as Towary ' \
+            'INNER JOIN CDN.TwrCeny as Ceny ON Towary.Twr_TwrId=Ceny.TwC_TwrID ' \
+            'WHERE Ceny.TwC_Typ=1'
 
     def __init__(self, data_row, create=True):
         self.data_row = data_row
@@ -13,6 +16,7 @@ class OptimaProduct:
         self.optima_code = self.get_optima_code()
         self.optima_name = self.get_optima_name()
         self.optima_unit = self.get_optima_unit()
+        self.optima_value = self.get_optima_value()
         self.optima_unit_collective = self.get_optima_unit_collective()
         self.optima_unit_converter = self.get_optima_unit_converter()
         self.optima_unit_converter_collective = self.get_optima_unit_converter_collective()
@@ -28,6 +32,9 @@ class OptimaProduct:
 
     def get_optima_code(self):
         return self.data_row[1]
+
+    def get_optima_value(self):
+        return self.data_row[7]
 
     def get_optima_name(self):
         return self.data_row[2]
@@ -56,6 +63,7 @@ class OptimaProduct:
             defaults={
                 'name': self.optima_name,
                 'code': self.optima_code,
+                'value': self.optima_value,
                 'unit': self.get_or_create_unit()
             }
         )
