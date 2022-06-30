@@ -86,9 +86,9 @@ class DocumentItem(WarehouseModel):
     gross_price = models.DecimalField(max_digits=12, decimal_places=4, blank=True, null=False)
 
     def save(self, *args, **kwargs):
-        self.net_price = decimal.Decimal(self.net_price * self.quantity).quantize(
+        self.net_price = decimal.Decimal(self.product.value * self.quantity).quantize(
             decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
-        self.gross_price = decimal.Decimal(self.net_price * self.quantity * decimal.Decimal(1.05)).quantize(
+        self.gross_price = decimal.Decimal(self.net_price * decimal.Decimal(1.05)).quantize(
             decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
         super().save(*args, **kwargs)
         self.document.recalculate_values()
