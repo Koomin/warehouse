@@ -222,7 +222,8 @@ class OptimaDocument:
                 'value_vat': self.value_vat,
                 'value_gross': self.value_gross,
                 'source_store': self.source_store,
-                'destination_store': self.destination_store
+                'destination_store': self.destination_store,
+                'exported': True
             }
         )
 

@@ -45,23 +45,30 @@ class Document(WarehouseModel):
     def save_to_optima(self):
         connection = OptimaConnection()
         cursor = connection.cursor
-        try:
-            optima_document = WarehouseDocument(self, cursor)
-            optima_id = optima_document.export_to_optima()
-            self.optima_id = optima_id
-            self.save()
-            for idx, document_item in enumerate(self.document_items.all().order_by('pk')):
-                optima_document_item = WarehouseDocumentItem(idx + 1, document_item, cursor)
-                optima_document_item_id = optima_document_item.export_to_optima()
-                document_item.optima_id = optima_document_item_id
-                document_item.save()
-        except Exception:
-            connection.cnxn.rollback()
-        else:
-            self.exported = True
-            self.optima_full_number = optima_document.number_string
-            self.save()
-            connection.cnxn.commit()
+        saved = False
+        if cursor:
+            try:
+                optima_document = WarehouseDocument(self, cursor)
+                optima_id = optima_document.export_to_optima()
+                self.optima_id = optima_id
+                self.save()
+                for idx, document_item in enumerate(self.document_items.all().order_by('pk')):
+                    optima_document_item = WarehouseDocumentItem(idx + 1, document_item, cursor)
+                    optima_document_item_id = optima_document_item.export_to_optima()
+                    document_item.optima_id = optima_document_item_id
+                    document_item.save()
+            except Exception:
+                connection.cnxn.rollback()
+            else:
+                self.exported = True
+                self.optima_full_number = optima_document.number_string
+                self.save()
+                connection.cnxn.commit()
+                saved = True
+            finally:
+                cursor.close()
+                connection.cnxn.close()
+        return saved
 
     def recalculate_values(self):
         value_net = 0
