@@ -27,3 +27,5 @@ django-simple-history==3.0.0
 psycopg2-binary==2.9
 gunicorn==20.1.0
 pyodbc==4.0.30
+coverage==6.4.1
+factory_boy==3.2.1
