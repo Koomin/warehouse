@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'warehouse_app.products',
     'warehouse_app.utils',
     'warehouse_app.stores',
+    'warehouse_app.documents',
 
 ]
 
@@ -134,4 +135,18 @@ OPTIMA_DB = {
     'DATABASE': get_env_variable('OPTIMA_DB'),
     'UID': get_env_variable('OPTIMA_USER'),
     'PASSWORD': get_env_variable('OPTIMA_PASSWORD')
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
 }

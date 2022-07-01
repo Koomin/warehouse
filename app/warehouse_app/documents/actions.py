@@ -1,0 +1,14 @@
+from django.contrib import admin, messages
+
+
+@admin.action(description='Export selected to optima')
+def export_to_optima(modeladmin, request, queryset):
+    objects_saved = 0
+    for obj in queryset.filter(exported=False):
+        saved = obj.save_to_optima()
+        if saved:
+            objects_saved += 1
+    if objects_saved != 0:
+        messages.add_message(request, messages.INFO, f'{objects_saved}/{queryset.count()} documents saved to Optima.')
+    else:
+        messages.add_message(request, messages.WARNING, f'None of documents was saved to Optima.')

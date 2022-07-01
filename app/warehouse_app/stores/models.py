@@ -17,3 +17,6 @@ class Store(WarehouseModel):
     description = models.TextField(null=True, blank=True)
     register = models.CharField(max_length=50, null=False, blank=False)
     status = models.IntegerField(choices=STATUS, default=ACTIVE)
+
+    def __str__(self):
+        return self.short_name
