@@ -1,7 +1,7 @@
 import logging
 from django.core.management.base import BaseCommand
-from warehouse_app.utils.utils import OptimaConnection
-from warehouse_app.utils.models import OptimaDocumentType
+from utils.utils import OptimaConnection
+from utils.models import OptimaDocumentType
 
 logger = logging.getLogger()
 

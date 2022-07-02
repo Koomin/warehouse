@@ -3,11 +3,11 @@ import logging
 
 from django.db import models, transaction
 
-from warehouse_app.utils.helpers import WarehouseDocument, WarehouseDocumentItem
-from warehouse_app.utils.utils import OptimaConnection
-from warehouse_app.products.models import Product
-from warehouse_app.stores.models import Store
-from warehouse_app.warehouse.models import WarehouseModel
+from utils.helpers import WarehouseDocument, WarehouseDocumentItem
+from utils.utils import OptimaConnection
+from products.models import Product
+from stores.models import Store
+from warehouse.models import WarehouseModel
 
 logger = logging.getLogger()
 
@@ -37,6 +37,9 @@ class Document(WarehouseModel):
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
     exported = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.document_type.name} - {self.value_net}'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -91,6 +94,9 @@ class DocumentItem(WarehouseModel):
     quantity = models.DecimalField(max_digits=12, decimal_places=4, null=False, blank=False)
     net_price = models.DecimalField(max_digits=12, decimal_places=4, null=False, blank=True)
     gross_price = models.DecimalField(max_digits=12, decimal_places=4, blank=True, null=False)
+
+    def __str__(self):
+        return f'{self.document.document_type.short_name} - {self.product.name} - {self.net_price}'
 
     def save(self, *args, **kwargs):
         self.net_price = decimal.Decimal(self.product.value * self.quantity).quantize(
