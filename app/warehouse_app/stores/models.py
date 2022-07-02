@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from warehouse_app.warehouse.models import WarehouseModel
+from warehouse.models import WarehouseModel
 
 
 class Store(WarehouseModel):

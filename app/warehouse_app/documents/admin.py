@@ -1,8 +1,8 @@
 from django.contrib import admin
 
 from documents.actions import export_to_optima
-from warehouse_app.documents.models import DocumentType, Document, DocumentItem
-from warehouse_app.warehouse.admin import WarehouseAdmin
+from documents.models import DocumentType, Document, DocumentItem
+from warehouse.admin import WarehouseAdmin
 
 
 @admin.register(DocumentType)

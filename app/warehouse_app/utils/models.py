@@ -1,6 +1,6 @@
-from warehouse_app.documents.models import DocumentType, Document, DocumentItem
-from warehouse_app.stores.models import Store
-from warehouse_app.products.models import Product, Unit
+from documents.models import DocumentType, Document, DocumentItem
+from stores.models import Store
+from products.models import Product, Unit
 
 
 class OptimaProduct:

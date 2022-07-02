@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from warehouse_app.stores.models import Store
-from warehouse_app.warehouse.admin import WarehouseAdmin
+from stores.models import Store
+from warehouse.admin import WarehouseAdmin
 
 
 @admin.register(Store)
