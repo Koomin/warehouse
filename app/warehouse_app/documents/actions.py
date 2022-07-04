@@ -12,3 +12,13 @@ def export_to_optima(modeladmin, request, queryset):
         messages.add_message(request, messages.INFO, f'{objects_saved}/{queryset.count()} documents saved to Optima.')
     else:
         messages.add_message(request, messages.WARNING, f'None of documents was saved to Optima.')
+
+
+@admin.action(description='Change status to active')
+def set_active(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+
+
+@admin.action(description='Change status to inactive')
+def set_inactive(modeladmin, request, queryset):
+    queryset.update(is_active=False)

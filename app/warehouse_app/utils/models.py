@@ -1,4 +1,4 @@
-from documents.models import DocumentType, Document, DocumentItem
+from documents.models import DocumentType, Document, DocumentItem, DocumentGroup
 from stores.models import Store
 from products.models import Product, Unit
 
@@ -276,3 +276,36 @@ class OptimaDocumentItem:
                 'gross_price': self.gross_price
             }
         )
+
+
+class OptimaDocumentGroup:
+    query = 'SELECT Gru_GruID, Gru_Typ, Gru_Nazwa FROM CDN.Grupy'
+
+    def __init__(self, data_row):
+        self.data_row = data_row
+        self.optima_id = self.get_optima_id()
+        self.document_type = self.get_type()
+        self.name = self.get_name()
+        self.create_document_group()
+
+    def get_optima_id(self):
+        return self.data_row[0]
+
+    def get_type(self):
+        document_type = DocumentType.objects.filter(optima_class=self.data_row[1])
+        if document_type.exists():
+            return document_type
+        else:
+            return None
+
+    def get_name(self):
+        return self.data_row[2]
+
+    def create_document_group(self):
+        if self.document_type:
+            obj, created = DocumentGroup.objects.get_or_create(optima_id=self.optima_id)
+            obj.name = self.name
+            obj.document_type.clear()
+            for doc_type in self.document_type:
+                obj.document_type.add(doc_type)
+            obj.save()

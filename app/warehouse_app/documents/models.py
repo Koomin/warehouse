@@ -105,3 +105,12 @@ class DocumentItem(WarehouseModel):
             decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
         super().save(*args, **kwargs)
         self.document.recalculate_values()
+
+
+class DocumentGroup(WarehouseModel):
+    optima_id = models.PositiveIntegerField(null=False, blank=False)
+    document_type = models.ManyToManyField(DocumentType, null=False, blank=False)
+    name = models.CharField(max_length=70, null=False, blank=False)
+
+    def __str__(self):
+        return f'{self.optima_id} - {self.name}'
