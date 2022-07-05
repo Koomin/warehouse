@@ -15,6 +15,7 @@ logger = logging.getLogger()
 class DocumentType(WarehouseModel):
     optima_id = models.PositiveIntegerField()
     optima_class = models.PositiveIntegerField()
+    details_id = models.PositiveIntegerField(null=True, blank=True)
     short_name = models.CharField(max_length=50, null=True, blank=True)
     name = models.CharField(max_length=255, null=False, blank=False)
     numbering = models.CharField(max_length=255, null=False, blank=False)
