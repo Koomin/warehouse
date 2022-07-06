@@ -28,7 +28,7 @@ class DocumentType(WarehouseModel):
 
 class DocumentGroup(WarehouseModel):
     optima_id = models.PositiveIntegerField(null=False, blank=False)
-    document_type = models.ManyToManyField(DocumentType, null=False, blank=False, related_name='groups')
+    document_type = models.ManyToManyField(DocumentType, related_name='groups')
     name = models.CharField(max_length=70, null=False, blank=False)
 
     def __str__(self):

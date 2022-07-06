@@ -5,11 +5,11 @@ from products.models import Product, Unit
 
 class OptimaProduct:
     query = 'SELECT Towary.Twr_TwrId, Towary.Twr_Kod, Towary.Twr_Nazwa, Towary.Twr_JM, Towary.Twr_JMZ, ' \
-            'Towary.Twr_JMPrzelicznikL, Towary.Twr_JMPrzelicznikM, Ceny.TwC_Wartosc, Towary.Twr_SWW, ' \
+            'Towary.Twr_JMPrzelicznikL, Towary.Twr_JMPrzelicznikM, Ceny.TwC_Wartosc, Towary.Twr_SWW, Ceny.TwC_TwCNumer ' \
             'FROM CDN.Towary as Towary ' \
             'INNER JOIN CDN.TwrCeny as Ceny ON Towary.Twr_TwrId=Ceny.TwC_TwrID ' \
-            'WHERE Ceny.TwC_Typ=1 ' \
-
+            'WHERE Ceny.TwC_TwCNumer=1 OR Ceny.TwC_TwCNumer=5 ' \
+            'ORDER BY Ceny.TwC_TwCNumer '
 
     def __init__(self, data_row, create=True):
         self.data_row = data_row
@@ -22,7 +22,7 @@ class OptimaProduct:
         self.optima_unit_converter = self.get_optima_unit_converter()
         self.optima_unit_converter_collective = self.get_optima_unit_converter_collective()
         self.pkwiu = self.get_pkwiu()
-        self.retail_value = self.get_retail_value()
+        self.type = self.get_type()
         if create:
             self.create_product()
 
@@ -57,7 +57,7 @@ class OptimaProduct:
     def get_pkwiu(self):
         return self.data_row[8]
 
-    def get_retail_value(self):
+    def get_type(self):
         return self.data_row[9]
 
     def get_or_create_unit(self):
@@ -67,16 +67,20 @@ class OptimaProduct:
         return unit
 
     def create_product(self):
-        Product.objects.update_or_create(
-            optima_id=self.optima_id,
-            defaults={
+        defaults = {
                 'name': self.optima_name,
                 'code': self.optima_code,
-                'value': self.optima_value,
-                'retail_value': self.retail_value,
                 'pkwiu': self.pkwiu,
                 'unit': self.get_or_create_unit()
             }
+        if self.type == 5:
+            defaults['retail_value'] = self.optima_value
+        else:
+            defaults['value'] = self.optima_value
+
+        Product.objects.update_or_create(
+            optima_id=self.optima_id,
+            defaults=defaults
         )
 
 
