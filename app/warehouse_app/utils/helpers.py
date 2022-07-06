@@ -5,11 +5,15 @@ class WarehouseDocument:
 
     def __init__(self, document, cursor):
         self.today = datetime.date.today()
+        self.current_year = self.today.year
         self.now = datetime.datetime.now()
         self.cursor = cursor
         self.document_type_optima_id = document.document_type.optima_id
         self.document_type_optima_class = document.document_type.optima_class
         self.document_type_numbering = document.document_type.numbering
+        self.document_type_short_name = document.document_type.short_name
+        self.document_group_name = document.document_group.name if document.document_group else None
+        self.number_string = self.document_type_numbering
         self.value_net = document.value_net
         self.value_gross = document.value_gross
         self.value_vat = document.value_vat
@@ -28,10 +32,21 @@ class WarehouseDocument:
         self.current_number = self._get_current_number()
 
     def _get_current_number(self):
-        query = "SELECT MAX(TrN_NumerNr) FROM CDN.TraNag WHERE TrN_DDfId={0} AND TrN_NumerString like '%/@numerS/{1}'"
-        id = self.cursor.execute(query.format(self.document_type_optima_id, datetime.date.today().year)).fetchone()[0]
-        new_id = id + 1
-        self.number_string = self.document_type_numbering.replace('@numerS', str(new_id))
+        number_replaces = {'@symbol': self.document_type_short_name,
+                           '@rok_kal': self.current_year,
+                           '@rejestr': self.document_group_name
+                           }
+
+        for k, v in number_replaces.items():
+            self.number_string = self.number_string.replace(k, str(v))
+        self.document_type_numbering = self.number_string
+        query = "SELECT MAX(TrN_NumerNr) FROM CDN.TraNag WHERE TrN_DDfId={0} AND TrN_NumerString like '" + self.number_string + "'"
+        id = self.cursor.execute(query.format(self.document_type_optima_id)).fetchone()[0]
+        try:
+            new_id = id + 1
+        except TypeError:
+            new_id = 1
+        self.number_string = self.number_string.replace('@numerS', str(new_id))
         return new_id
 
     def _get_optima_id(self):
@@ -131,7 +146,7 @@ class WarehouseDocumentItem:
         self.gross_price = document_item.gross_price
         self.currency = 'PLN'
         self.quantity = document_item.quantity
-        self.ssw = "10.71.11"
+        self.ssw = document_item.product.pkwiu
         self.vat = 5.00
 
     def _get_optima_id(self):

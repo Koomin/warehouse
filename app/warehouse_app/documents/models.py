@@ -26,6 +26,15 @@ class DocumentType(WarehouseModel):
         return self.short_name
 
 
+class DocumentGroup(WarehouseModel):
+    optima_id = models.PositiveIntegerField(null=False, blank=False)
+    document_type = models.ManyToManyField(DocumentType, null=False, blank=False, related_name='groups')
+    name = models.CharField(max_length=70, null=False, blank=False)
+
+    def __str__(self):
+        return f'{self.optima_id} - {self.name}'
+
+
 class Document(WarehouseModel):
     optima_id = models.PositiveIntegerField(null=True, blank=True)
     document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE, null=False, blank=False)
@@ -37,6 +46,7 @@ class Document(WarehouseModel):
                                      related_name='document_source')
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
+    document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='group')
     exported = models.BooleanField(default=False)
 
     def __str__(self):
@@ -61,7 +71,8 @@ class Document(WarehouseModel):
                     optima_document_item_id = optima_document_item.export_to_optima()
                     document_item.optima_id = optima_document_item_id
                     document_item.save()
-            except Exception:
+            except Exception as e:
+                print(e)
                 connection.cnxn.rollback()
             else:
                 self.exported = True
@@ -106,12 +117,3 @@ class DocumentItem(WarehouseModel):
             decimal.Decimal('.0100'), rounding=decimal.ROUND_HALF_UP)
         super().save(*args, **kwargs)
         self.document.recalculate_values()
-
-
-class DocumentGroup(WarehouseModel):
-    optima_id = models.PositiveIntegerField(null=False, blank=False)
-    document_type = models.ManyToManyField(DocumentType, null=False, blank=False)
-    name = models.CharField(max_length=70, null=False, blank=False)
-
-    def __str__(self):
-        return f'{self.optima_id} - {self.name}'
