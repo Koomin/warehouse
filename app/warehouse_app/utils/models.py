@@ -1,14 +1,15 @@
-from documents.models import DocumentType, Document, DocumentItem
+from documents.models import DocumentType, Document, DocumentItem, DocumentGroup
 from stores.models import Store
 from products.models import Product, Unit
 
 
 class OptimaProduct:
     query = 'SELECT Towary.Twr_TwrId, Towary.Twr_Kod, Towary.Twr_Nazwa, Towary.Twr_JM, Towary.Twr_JMZ, ' \
-            'Towary.Twr_JMPrzelicznikL, Towary.Twr_JMPrzelicznikM, Ceny.TwC_Wartosc ' \
+            'Towary.Twr_JMPrzelicznikL, Towary.Twr_JMPrzelicznikM, Ceny.TwC_Wartosc, Towary.Twr_SWW, Ceny.TwC_TwCNumer ' \
             'FROM CDN.Towary as Towary ' \
             'INNER JOIN CDN.TwrCeny as Ceny ON Towary.Twr_TwrId=Ceny.TwC_TwrID ' \
-            'WHERE Ceny.TwC_Typ=1'
+            'WHERE Ceny.TwC_TwCNumer=1 OR Ceny.TwC_TwCNumer=5 ' \
+            'ORDER BY Ceny.TwC_TwCNumer '
 
     def __init__(self, data_row, create=True):
         self.data_row = data_row
@@ -20,6 +21,8 @@ class OptimaProduct:
         self.optima_unit_collective = self.get_optima_unit_collective()
         self.optima_unit_converter = self.get_optima_unit_converter()
         self.optima_unit_converter_collective = self.get_optima_unit_converter_collective()
+        self.pkwiu = self.get_pkwiu()
+        self.type = self.get_type()
         if create:
             self.create_product()
 
@@ -51,6 +54,12 @@ class OptimaProduct:
     def get_optima_unit_converter_collective(self):
         return self.data_row[6]
 
+    def get_pkwiu(self):
+        return self.data_row[8]
+
+    def get_type(self):
+        return self.data_row[9]
+
     def get_or_create_unit(self):
         unit, created = Unit.objects.get_or_create(
             short_name=self.optima_unit
@@ -58,14 +67,20 @@ class OptimaProduct:
         return unit
 
     def create_product(self):
-        Product.objects.update_or_create(
-            optima_id=self.optima_id,
-            defaults={
+        defaults = {
                 'name': self.optima_name,
                 'code': self.optima_code,
-                'value': self.optima_value,
+                'pkwiu': self.pkwiu,
                 'unit': self.get_or_create_unit()
             }
+        if self.type == 5:
+            defaults['retail_value'] = self.optima_value
+        else:
+            defaults['value'] = self.optima_value
+
+        Product.objects.update_or_create(
+            optima_id=self.optima_id,
+            defaults=defaults
         )
 
 
@@ -276,3 +291,36 @@ class OptimaDocumentItem:
                 'gross_price': self.gross_price
             }
         )
+
+
+class OptimaDocumentGroup:
+    query = 'SELECT Gru_GruID, Gru_Typ, Gru_Nazwa FROM CDN.Grupy'
+
+    def __init__(self, data_row):
+        self.data_row = data_row
+        self.optima_id = self.get_optima_id()
+        self.document_type = self.get_type()
+        self.name = self.get_name()
+        self.create_document_group()
+
+    def get_optima_id(self):
+        return self.data_row[0]
+
+    def get_type(self):
+        document_type = DocumentType.objects.filter(optima_class=self.data_row[1])
+        if document_type.exists():
+            return document_type
+        else:
+            return None
+
+    def get_name(self):
+        return self.data_row[2]
+
+    def create_document_group(self):
+        if self.document_type:
+            obj, created = DocumentGroup.objects.get_or_create(optima_id=self.optima_id)
+            obj.name = self.name
+            obj.document_type.clear()
+            for doc_type in self.document_type:
+                obj.document_type.add(doc_type)
+            obj.save()

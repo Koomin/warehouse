@@ -15,6 +15,7 @@ logger = logging.getLogger()
 class DocumentType(WarehouseModel):
     optima_id = models.PositiveIntegerField()
     optima_class = models.PositiveIntegerField()
+    details_id = models.PositiveIntegerField(null=True, blank=True)
     short_name = models.CharField(max_length=50, null=True, blank=True)
     name = models.CharField(max_length=255, null=False, blank=False)
     numbering = models.CharField(max_length=255, null=False, blank=False)
@@ -23,6 +24,15 @@ class DocumentType(WarehouseModel):
 
     def __str__(self):
         return self.short_name
+
+
+class DocumentGroup(WarehouseModel):
+    optima_id = models.PositiveIntegerField(null=False, blank=False)
+    document_type = models.ManyToManyField(DocumentType, related_name='groups')
+    name = models.CharField(max_length=70, null=False, blank=False)
+
+    def __str__(self):
+        return f'{self.optima_id} - {self.name}'
 
 
 class Document(WarehouseModel):
@@ -36,6 +46,7 @@ class Document(WarehouseModel):
                                      related_name='document_source')
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
+    document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='group')
     exported = models.BooleanField(default=False)
 
     def __str__(self):

@@ -4,23 +4,49 @@ import datetime
 class WarehouseDocument:
 
     def __init__(self, document, cursor):
+        self.today = datetime.date.today()
+        self.current_year = self.today.year
+        self.now = datetime.datetime.now()
         self.cursor = cursor
         self.document_type_optima_id = document.document_type.optima_id
         self.document_type_optima_class = document.document_type.optima_class
         self.document_type_numbering = document.document_type.numbering
-        self.document_type_details_id = 312000
+        self.document_type_short_name = document.document_type.short_name
+        self.document_group_name = document.document_group.name if document.document_group else None
+        self.number_string = self.document_type_numbering
         self.value_net = document.value_net
         self.value_gross = document.value_gross
         self.value_vat = document.value_vat
         self.source_store = document.source_store.optima_id
         self.destination_store = document.destination_store.optima_id
+        self.data_dok = self.today
+        self.data_wys = self.today
+        self.data_ope = self.today
+        self.data_kur = self.today
+        self.termin = self.today
+        self.termin_zwrotu_kaucji = datetime.date(self.today.year, self.today.month + 1, 30)
+        self.ts_zal = self.now
+        self.ts_mod = self.now
+        self.data_transportu = self.today
+        self.document_type_details_id = document.document_type.details_id
         self.current_number = self._get_current_number()
 
     def _get_current_number(self):
-        query = "SELECT MAX(TrN_NumerNr) FROM CDN.TraNag WHERE TrN_DDfId={0} AND TrN_NumerString like '%/@numerS/{1}'"
-        id = self.cursor.execute(query.format(self.document_type_optima_id, datetime.date.today().year)).fetchone()[0]
-        new_id = id + 1
-        self.number_string = self.document_type_numbering.replace('@numerS', str(new_id))
+        number_replaces = {'@symbol': self.document_type_short_name,
+                           '@rok_kal': self.current_year,
+                           '@rejestr': self.document_group_name
+                           }
+
+        for k, v in number_replaces.items():
+            self.number_string = self.number_string.replace(k, str(v))
+        self.document_type_numbering = self.number_string
+        query = "SELECT MAX(TrN_NumerNr) FROM CDN.TraNag WHERE TrN_DDfId={0} AND TrN_NumerString like '" + self.number_string + "'"
+        id = self.cursor.execute(query.format(self.document_type_optima_id)).fetchone()[0]
+        try:
+            new_id = id + 1
+        except TypeError:
+            new_id = 1
+        self.number_string = self.number_string.replace('@numerS', str(new_id))
         return new_id
 
     def _get_optima_id(self):
@@ -70,18 +96,37 @@ class WarehouseDocument:
                             '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
                             '?,?,?)',
                             self.document_type_optima_id, self.document_type_optima_class, self.document_type_numbering,
-                            self.current_number, 1, 0, datetime.datetime(2022, 6, 30, 0, 0, 0, 0), datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
-                            datetime.datetime(2022, 6, 30, 0, 0, 0, 0), datetime.datetime(2022, 6, 30, 0, 0, 0, 0), 0, 0, 0, 0, 0,
-                            self.document_type_details_id,
-                            1, 1, ".", 1, 0, 0, 0, 1, 1, ".", 1, 1, 0, 0, 0, 1,
-                            datetime.datetime(2022, 6, 30, 0, 0, 0, 0), datetime.datetime(2022, 6, 30, 0, 0, 0, 0), self.value_net, self.value_vat,
-                            self.value_gross, self.value_net, self.value_vat, self.value_gross, 3, 1.0000, 1,
-                            0, 0, 0, 1, self.source_store, self.destination_store, 1, 0.00, 0.00, 0, 1, 2,
-                            datetime.datetime(2022, 6, 30, 0, 0, 0, 0), 1, 2, datetime.datetime(2022, 6, 30, 0, 0, 0, 0), 0, datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
-                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.00, 0, 0, 0, 0, 0, 1, 7, -1,
-                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                            "",
-                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                            self.current_number,
+                            1, 0, self.data_dok, self.data_wys,
+                            self.data_ope, self.data_kur, 0, 0,
+                            0, 0, 0, self.document_type_details_id,
+                            1, 1, ".", 1,
+                            0, 0, 0, 1,
+                            1, ".", 1, 1,
+                            0, 0, 0, 1,
+                            self.termin, self.termin_zwrotu_kaucji, self.value_net, self.value_vat,
+                            self.value_gross, self.value_net, self.value_vat, self.value_gross,
+                            3, 1.0000, 1, 0,
+                            0, 0, 1, self.source_store,
+                            self.destination_store, 1, 0.00, 0.00,
+                            0, 1, 2, self.ts_zal,
+                            1, 2, self.ts_mod, 0,
+                            self.data_transportu, 0, 0, 0,
+                            0, 0, 0, 0,
+                            0, 0, 0, 0.00,
+                            0, 0, 0, 0,
+                            0, 1, 7, -1,
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "")
         optima_id = self._get_optima_id()
         return optima_id
 
@@ -101,69 +146,84 @@ class WarehouseDocumentItem:
         self.gross_price = document_item.gross_price
         self.currency = 'PLN'
         self.quantity = document_item.quantity
-        self.ssw = "10.71.11"
+        self.ssw = document_item.product.pkwiu
         self.vat = 5.00
 
     def _get_optima_id(self):
         return self.cursor.execute("SELECT @@Identity").fetchone()[0]
 
-    #TODO Change date in insert
+    # TODO Change date in insert
 
     def export_to_optima(self):
         self.cursor.execute('INSERT INTO CDN.TraElem ('
-                              'TrE_TrNId, TrE_Lp, TrE_LpPow, TrE_TyPDokumentu,'
-                              'TrE_Aktywny, TrE_RabatPromocyjny, TrE_RabatKorekta, TrE_PodmiotTyp,'
-                              'TrE_PodID, TrE_TwrId, TrE_MagId, TrE_TwrNazwa, '
-                              'TrE_TwrKod, TrE_TwrSWW, TrE_TwrTyp, TrE_Stawka, '
-                              'TrE_Flaga, TrE_Zrodlowa, TrE_TwCNumer, TrE_TypNB,'
-                              'TrE_Cena0, TrE_Rabat, TrE_CenaW, TrE_Waluta, '
-                              'TrE_Kaucja, TrE_WyborDostaw, TrE_KursNumer, TrE_KursL,'
-                              'Tre_KursM, TrE_CenaT, TrE_Ilosc, TrE_IloscKW, '
-                              'TrE_Jm, TrE_JmZ, TrE_JmCalkowite, TrE_JMPrzelicznikL, '
-                              'TrE_JMPRzelicznikM, TrE_IloscJM, TrE_IloscJMKW, TrE_WartoscNetto, '
-                              'TrE_WartoscBrutto, TrE_KosztUslugi, TrE_KosztKGO, '
-                              'Tre_AkcyzaJMPomPrzelicznikL, Tre_AkcyzaJMPomPrzelicznikM, TrE_AkcyzaOpal, TrE_AkcyzaStawka,'
-                              'Tre_OdwrotneObciazenie, TrE_WartoscZakupuWylicz, TrE_Cena0WD, TrE_CenaWWD, '
-                              'TrE_WartoscNettoWal, TrE_WartoscBruttoWal, TrE_Prog, TrE_UpustTyp, '
-                              'TrE_Upust, TrE_UpustKnt, TrE_UpustKntTyp, TrE_IFA24Mag,'
-                              'TrE_IFA24, TrE_ZTwID, TrE_ZestawWiazanie, TrE_ZTwGlowny, '
-                              'TrE_ZTwIlosc, TrE_DoZwrotu, TrE_UslugaZlozonaId, TrE_UslugaZlozona, '
-                              'TrE_PATrEId, TrE_KWRoznicaKursowa, Tre_CenaZCzteremaMiejscami, TrE_FakZalKwotaMax, '
-                              'Tre_UstawAtrSQL, Tre_UstawAtrSQLDokTyp, TrE_SplitPay, TrE_KV7ID,'
-                              'TrE_CzySaCechyWymagane, TrE_OplataCukrowaPrzelicznikML, TrE_OplataCukrowaOdCukrowStala, TrE_OplataCukrowaOdCukrowZmienna, '
-                              'TrE_OplataCukrowaOdKofeinyTaurynyStala, TrE_OplataCukrowaOdCukrowZawartoscGram, TrE_OplataCukrowaOdCukrowZawartoscSokow20, TrE_OplataCukrowaOdCukrowZawartoscRoztwor,'
-                              'TrE_OplataCukrowaOdSubstancjiSlodzacych, TrE_OplataCukrowaOdKofeinyTauryny, TrE_OplataCukrowaDoliczDoCeny, TrE_StawkaOSS,'
-                              'TrE_DataDok, TrE_DataOpe, TrE_TwrEAN, TrE_TwrNumerKat,'
-                              'TrE_TwrOpis, TrE_Akcyza_Kod, TrE_Akcyza_Wartosc, TrE_SJRodzajPaliwa,'
-                              'TrE_SJSystemCertyfikacji, TrE_SJPopiol, TrE_SJCzesciLotne, TrE_SJWartoscOpalowa,'
-                              'TrE_SJZdolnoscSpiekania, TrE_SJWymiarZiarna, TrE_SJZawartoscPodziarna, TrE_SJZawartoscNadziarna,'
-                              'TrE_SJZawartoscWilgoci, TrE_KodCN, TrE_Atr1_Kod, TrE_Atr1_Wartosc,'
-                              'TrE_Atr2_Kod, TrE_Atr2_Wartosc, TrE_Atr3_Kod, TrE_Atr3_Wartosc,'
-                              'TrE_Atr4_Kod, TrE_Atr4_Wartosc, TrE_Atr5_Kod,TrE_Atr5_Wartosc,'
-                              'TrE_ZTwKod, TrE_OplataCukrowaNumerPartiiTowaru, TrE_TwrKodDostawcy'
-                              ')VALUES ('
-                              '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
-                              '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
-                              '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
-                              '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
-                              '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
-                              '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-                              self.tra_nag_id, self.idx, self.idx, self.document_type, 1,
-                              0.0000, 0.0000, 1, 1, self.product_id,
-                              self.source_store, self.product_name,
-                              self.product_code, self.ssw, 1, self.vat, 2, 0.00, 1, 1,
-                              self.net_price, 0.00, self.net_price, self.currency,
-                              0, 0, 0, 1.000, 1, self.net_price, self.quantity,
-                              0.0000, self.unit, self.unit, 0, 1.00, 1, self.quantity, 1.0000,
-                              self.net_price, self.gross_price,
-                              0.00, 0.00, 1.00, 1, 0.00, 0.00, 0, 0.00,
-                              self.net_price, self.net_price,
-                              self.net_price, self.gross_price,
-                              0.00, 0, 0.00, 0.00, 0, 0, 0, 0, 0, 0, 0.0000, 0.0000, 0, 0, 0, 0.00,
-                              0, 0.00, -1, 1, 0, 0, -1, 1.00, 0.00, 0.00, 0.00, 0.000, 0, 0, 0, 0, 0.00, 0,
-                              datetime.datetime(2022, 6, 30, 0, 0, 0, 0), datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
-                              "", "", "", "", "", "", "", "", "", "", "",
-                              "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                            'TrE_TrNId, TrE_Lp, TrE_LpPow, TrE_TyPDokumentu,'
+                            'TrE_Aktywny, TrE_RabatPromocyjny, TrE_RabatKorekta, TrE_PodmiotTyp,'
+                            'TrE_PodID, TrE_TwrId, TrE_MagId, TrE_TwrNazwa, '
+                            'TrE_TwrKod, TrE_TwrSWW, TrE_TwrTyp, TrE_Stawka, '
+                            'TrE_Flaga, TrE_Zrodlowa, TrE_TwCNumer, TrE_TypNB,'
+                            'TrE_Cena0, TrE_Rabat, TrE_CenaW, TrE_Waluta, '
+                            'TrE_Kaucja, TrE_WyborDostaw, TrE_KursNumer, TrE_KursL,'
+                            'Tre_KursM, TrE_CenaT, TrE_Ilosc, TrE_IloscKW, '
+                            'TrE_Jm, TrE_JmZ, TrE_JmCalkowite, TrE_JMPrzelicznikL, '
+                            'TrE_JMPRzelicznikM, TrE_IloscJM, TrE_IloscJMKW, TrE_WartoscNetto, '
+                            'TrE_WartoscBrutto, TrE_KosztUslugi, TrE_KosztKGO, '
+                            'Tre_AkcyzaJMPomPrzelicznikL, Tre_AkcyzaJMPomPrzelicznikM, TrE_AkcyzaOpal, TrE_AkcyzaStawka,'
+                            'Tre_OdwrotneObciazenie, TrE_WartoscZakupuWylicz, TrE_Cena0WD, TrE_CenaWWD, '
+                            'TrE_WartoscNettoWal, TrE_WartoscBruttoWal, TrE_Prog, TrE_UpustTyp, '
+                            'TrE_Upust, TrE_UpustKnt, TrE_UpustKntTyp, TrE_IFA24Mag,'
+                            'TrE_IFA24, TrE_ZTwID, TrE_ZestawWiazanie, TrE_ZTwGlowny, '
+                            'TrE_ZTwIlosc, TrE_DoZwrotu, TrE_UslugaZlozonaId, TrE_UslugaZlozona, '
+                            'TrE_PATrEId, TrE_KWRoznicaKursowa, Tre_CenaZCzteremaMiejscami, TrE_FakZalKwotaMax, '
+                            'Tre_UstawAtrSQL, Tre_UstawAtrSQLDokTyp, TrE_SplitPay, TrE_KV7ID,'
+                            'TrE_CzySaCechyWymagane, TrE_OplataCukrowaPrzelicznikML, TrE_OplataCukrowaOdCukrowStala, TrE_OplataCukrowaOdCukrowZmienna, '
+                            'TrE_OplataCukrowaOdKofeinyTaurynyStala, TrE_OplataCukrowaOdCukrowZawartoscGram, TrE_OplataCukrowaOdCukrowZawartoscSokow20, TrE_OplataCukrowaOdCukrowZawartoscRoztwor,'
+                            'TrE_OplataCukrowaOdSubstancjiSlodzacych, TrE_OplataCukrowaOdKofeinyTauryny, TrE_OplataCukrowaDoliczDoCeny, TrE_StawkaOSS,'
+                            'TrE_DataDok, TrE_DataOpe, TrE_TwrEAN, TrE_TwrNumerKat,'
+                            'TrE_TwrOpis, TrE_Akcyza_Kod, TrE_Akcyza_Wartosc, TrE_SJRodzajPaliwa,'
+                            'TrE_SJSystemCertyfikacji, TrE_SJPopiol, TrE_SJCzesciLotne, TrE_SJWartoscOpalowa,'
+                            'TrE_SJZdolnoscSpiekania, TrE_SJWymiarZiarna, TrE_SJZawartoscPodziarna, TrE_SJZawartoscNadziarna,'
+                            'TrE_SJZawartoscWilgoci, TrE_KodCN, TrE_Atr1_Kod, TrE_Atr1_Wartosc,'
+                            'TrE_Atr2_Kod, TrE_Atr2_Wartosc, TrE_Atr3_Kod, TrE_Atr3_Wartosc,'
+                            'TrE_Atr4_Kod, TrE_Atr4_Wartosc, TrE_Atr5_Kod,TrE_Atr5_Wartosc,'
+                            'TrE_ZTwKod, TrE_OplataCukrowaNumerPartiiTowaru, TrE_TwrKodDostawcy'
+                            ')VALUES ('
+                            '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
+                            '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
+                            '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
+                            '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
+                            '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'
+                            '?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+                            self.tra_nag_id, self.idx, self.idx, self.document_type, 1,
+                            0.0000, 0.0000, 1, 1,
+                            self.product_id, self.source_store, self.product_name, self.product_code,
+                            self.ssw, 1, self.vat, 2,
+                            0.00, 1, 1, self.net_price,
+                            0.00, self.net_price, self.currency, 0,
+                            0, 0, 1.000, 1,
+                            self.net_price, self.quantity, 0.0000, self.unit,
+                            self.unit, 0, 1.00, 1,
+                            self.quantity, 1.0000, self.net_price, self.gross_price,
+                            0.00, 0.00, 1.00, 1,
+                            0.00, 0.00, 0, 0.00,
+                            self.net_price, self.net_price, self.net_price, self.gross_price,
+                            0.00, 0, 0.00, 0.00,
+                            0, 0, 0, 0,
+                            0, 0, 0.0000, 0.0000,
+                            0, 0, 0, 0.00,
+                            0, 0.00, -1, 1,
+                            0, 0, -1, 1.00,
+                            0.00, 0.00, 0.00, 0.000,
+                            0, 0, 0, 0,
+                            0.00, 0, datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
+                            datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "", "", "", "",
+                            "")
 
         optima_id = self._get_optima_id()
         return optima_id
