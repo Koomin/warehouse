@@ -71,8 +71,7 @@ class Document(WarehouseModel):
                     optima_document_item_id = optima_document_item.export_to_optima()
                     document_item.optima_id = optima_document_item_id
                     document_item.save()
-            except Exception as e:
-                print(e)
+            except Exception:
                 connection.cnxn.rollback()
             else:
                 self.exported = True
