@@ -39,6 +39,13 @@ RUN mkdir $APP_HOME/staticfiles
 WORKDIR $APP_HOME
 
 RUN apt-get update && apt install -y netcat
+RUN apt-get update && apt-get -y upgrade && apt-get -y install apt-transport-https gcc python3-dev musl-dev g++ unixodbc-dev curl
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get -y install msodbcsql17
+
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --no-cache /wheels/*
