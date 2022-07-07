@@ -303,6 +303,9 @@ class OptimaDocumentGroup:
         self.name = self.get_name()
         self.create_document_group()
 
+    def __str__(self):
+        return f'{self.optima_id} {self.document_type} {self.name}'
+
     def get_optima_id(self):
         return self.data_row[0]
 

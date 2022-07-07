@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from imports.models import Import
+from warehouse.admin import WarehouseAdmin
+
+
+@admin.register(Import)
+class ImportAdmin(WarehouseAdmin):
+    list_display = ('method', 'created')
