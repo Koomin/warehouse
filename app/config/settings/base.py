@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'utils',
     'stores',
     'documents',
+    'imports',
 
 ]
 
