@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM --platform=linux/amd64 python:3.8.13-bullseye
+FROM --platform=linux/amd64 python:3.8.13-bullseye AS builder
 
 WORKDIR /usr/src/app
 
