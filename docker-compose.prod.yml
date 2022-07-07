@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   web:
@@ -9,7 +9,11 @@ services:
     expose:
       - 8000
     volumes:
-      - static_volume:/home/app/web/warehouse_app/staticfiles
+      - static_volume:/home/app/web/static
+    extra_hosts:
+      - sql-host:192.168.1.9
+    environment:
+      - OPTIMA_SERVER=tcp:sql-host
     env_file:
       - ./.env.prod
     depends_on:
@@ -26,7 +30,7 @@ services:
     restart: always
     build: ./nginx
     volumes:
-      - static_volume:/home/app/web/warehouse_app/staticfiles
+      - static_volume:/home/app/web/static
     ports:
       - 80:80
     depends_on:
