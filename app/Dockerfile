@@ -20,5 +20,3 @@ RUN sed -i 's/\r$//g' /usr/src/app/entrypoint.sh
 RUN chmod +x /usr/src/app/entrypoint.sh
 
 COPY . .
-
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
