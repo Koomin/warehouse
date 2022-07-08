@@ -1,6 +1,9 @@
 version: '3'
 
 services:
+  rabbit:
+    restart: always
+    image: rabbitmq:latest
   web:
     restart: always
     build:
@@ -18,7 +21,7 @@ services:
       - ./.env.prod
     depends_on:
       - db
-    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    command: "/home/app/web/entrypoint.prod.sh"
   db:
       restart: always
       image: postgres:13.0-alpine
@@ -26,6 +29,28 @@ services:
         - postgres_data:/var/lib/postgresql/data/
       env_file:
         - ./.env.prod.db
+  celery:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    command: celery -A config worker -l info
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+      - rabbit
+      - web
+  beat:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    command: celery -A config beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - celery
+      - rabbit
+      - web
   nginx:
     restart: always
     build: ./nginx

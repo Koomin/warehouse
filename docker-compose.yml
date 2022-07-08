@@ -4,8 +4,6 @@ services:
   rabbit:
     restart: always
     image: rabbitmq:latest
-    ports:
-      - 15672:15672
   db:
       image: postgres:13.0-alpine
       volumes:
