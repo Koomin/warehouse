@@ -29,3 +29,6 @@ gunicorn==20.1.0
 pyodbc==4.0.30
 coverage==6.4.1
 factory_boy==3.2.1
+celery==5.1.2
+django-celery-beat==2.2.0
+django-celery-results==2.2.0
