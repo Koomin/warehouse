@@ -1,6 +1,6 @@
-from django.core.management import call_command
 from django.db import models
 
+from utils.tasks import async_imports
 from warehouse.models import WarehouseModel
 
 
@@ -26,4 +26,4 @@ class Import(WarehouseModel):
 
     def save(self, *args):
         super().save(*args)
-        call_command(self.method)
+        async_imports.apply_async(kwargs={'command': self.method}, retry=False)
