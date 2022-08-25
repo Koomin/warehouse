@@ -8,16 +8,16 @@ from products.serializers import ProductSerializer, UnitSerializer, ProductCateg
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class UnitViewSet(viewsets.ModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class ProductCategoryViewSet(viewsets.ModelViewSet):
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
