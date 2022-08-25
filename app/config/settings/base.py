@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'simple_history',
     'warehouse',
+    'warehouse_auth',
     'products',
     'utils',
     'stores',
@@ -97,6 +98,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+
+AUTH_USER_MODEL = 'warehouse_auth.WarehouseUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

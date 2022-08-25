@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.db import models
 
 from utils.tasks import async_imports

@@ -12,12 +12,8 @@ class TokenWithUserObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         data['user'] = {'first_name': self.user.first_name, 'last_name': self.user.last_name}
-        data['permissions'] = self.permissions_table()
+        data['permissions'] = self.user.get_permission_table()
         return data
-
-    def permissions_table(self):
-        permissions = {}
-        return permissions
 
 
 class TokenWithUserObtainPairView(TokenObtainPairView):
