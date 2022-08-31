@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 import json
 
+
 class WarehouseFrontPermissions(models.Model):
     model = models.CharField(max_length=128, null=False, blank=False)
 

@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.8.13-bullseye
+FROM --platform=linux/amd64 python:3.9.12-bullseye
 
 WORKDIR /usr/src/app
 ENV PYTHONDONTWRITEBYTECODE 1
