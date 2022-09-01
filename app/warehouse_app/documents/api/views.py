@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from documents.models import Document, DocumentItem, DocumentType
-from documents.serializers import DocumentSerializer, DocumentItemSerializer, DocumentTypeSerializer
+from documents.api.serializers import DocumentSerializer, DocumentItemSerializer, DocumentTypeSerializer
 
 
 class DocumentViewSet(viewsets.ModelViewSet):

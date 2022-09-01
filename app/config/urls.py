@@ -7,10 +7,10 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from documents.views import DocumentViewSet, DocumentItemViewSet, DocumentTypeViewSet
-from products.views import ProductViewSet, UnitViewSet, ProductCategoryViewSet
-from stores.views import StoreViewSet
-from warehouse.authentication import TokenWithUserObtainPairView
+from documents.api.views import DocumentViewSet, DocumentItemViewSet, DocumentTypeViewSet
+from products.api.views import ProductViewSet, UnitViewSet, ProductCategoryViewSet
+from stores.api.views import StoreViewSet
+from warehouse_auth.api.authentication import TokenWithUserObtainPairView
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
