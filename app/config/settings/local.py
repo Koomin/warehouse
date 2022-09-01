@@ -12,7 +12,3 @@ DATABASES = {
         'PORT': get_env_variable('DB_PORT')
     }
 }
-
-INSTALLED_APPS += ['debug_toolbar', ]
-
-MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
