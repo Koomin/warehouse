@@ -8,5 +8,5 @@ from stores.api.serializers import StoreSerializer
 class StoreViewSet(viewsets.ModelViewSet):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'uuid'

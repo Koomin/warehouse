@@ -2,6 +2,7 @@ import decimal
 import logging
 
 from django.db import models, transaction
+from django.utils.translation import gettext_lazy as _
 
 from utils.helpers import WarehouseDocument, WarehouseDocumentItem
 from utils.utils import OptimaConnection
@@ -36,8 +37,12 @@ class DocumentGroup(WarehouseModel):
 
 
 class Document(WarehouseModel):
+    class Types(models.TextChoices):
+        OPTIMA = 'optima', _('Optima')
+        PRODUCTION = 'production', _('Production')
+
     optima_id = models.PositiveIntegerField(null=True, blank=True)
-    document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE, null=False, blank=False)
+    document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE, null=True, blank=True)
     optima_full_number = models.CharField(max_length=255, null=True, blank=True)
     value_net = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=False, default=0.00)
     value_vat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=False, default=0.00)
@@ -47,10 +52,14 @@ class Document(WarehouseModel):
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
     document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='group')
+    type = models.CharField(max_length=11, choices=Types.choices, blank=False, null=False, default=Types.OPTIMA)
     exported = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.document_type.name} - {self.value_net}'
+        if self.document_type:
+            return f'{self.document_type.name} - {self.value_net}'
+        else:
+            return f'{self.type} - {self.value_net}'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -107,7 +116,10 @@ class DocumentItem(WarehouseModel):
     gross_price = models.DecimalField(max_digits=12, decimal_places=4, blank=True, null=False)
 
     def __str__(self):
-        return f'{self.document.document_type.short_name} - {self.product.name} - {self.net_price}'
+        if self.document.document_type:
+            return f'{self.document.document_type.short_name} - {self.product.name} - {self.net_price}'
+        else:
+            return f'{self.document.type} - {self.product.name} - {self.net_price}'
 
     def save(self, *args, **kwargs):
         self.net_price = decimal.Decimal(self.product.value * self.quantity).quantize(

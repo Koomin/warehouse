@@ -11,7 +11,7 @@ class UnitSerializer(serializers.ModelSerializer):
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
-        fields = ['name', 'product_code', ]
+        fields = ['uuid', 'name', 'product_code', ]
 
 
 class ProductSerializer(serializers.ModelSerializer):
