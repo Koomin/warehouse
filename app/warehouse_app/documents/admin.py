@@ -27,7 +27,7 @@ class DocumentItemInline(admin.TabularInline):
 class DocumentAdmin(WarehouseAdmin):
     list_display = (
         'optima_full_number', 'value_net', 'value_vat', 'value_gross', 'optima_id', 'document_type', 'source_store',
-        'destination_store')
+        'destination_store', 'uuid')
     inlines = [DocumentItemInline, ]
     autocomplete_fields = ['document_type', 'source_store', 'destination_store']
     list_filter = ['document_type', ]

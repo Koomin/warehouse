@@ -5,4 +5,4 @@ from stores.models import Store
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
-        fields = ['id', 'optima_id', 'name', 'short_name', 'description', 'register', 'status', ]
+        fields = ['uuid', 'optima_id', 'name', 'short_name', 'description', 'register', 'status', ]

@@ -11,10 +11,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'uuid'
 
     @action(detail=True, methods=['get'])
-    def type(self, request, pk=None):
-        documents = Document.objects.filter(document_type_id=pk)
+    def type(self, request, uuid=None):
+        documents = Document.objects.filter(document_type__uuid=uuid)
         if documents:
             serializer = self.get_serializer(documents, many=True)
             return Response(serializer.data)
@@ -24,10 +25,11 @@ class DocumentItemViewSet(viewsets.ModelViewSet):
     queryset = DocumentItem.objects.all()
     serializer_class = DocumentItemSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'uuid'
 
     @action(detail=True, methods=['get'])
-    def document(self, request, pk=None):
-        document_items = DocumentItem.objects.filter(document__pk=pk)
+    def document(self, request, uuid=None):
+        document_items = DocumentItem.objects.filter(document__uuid=uuid)
         if document_items:
             serializer = self.get_serializer(document_items, many=True)
             return Response(serializer.data)
@@ -37,3 +39,4 @@ class DocumentTypeViewSet(viewsets.ModelViewSet):
     queryset = DocumentType.objects.filter(is_active=True).distinct('optima_id')
     serializer_class = DocumentTypeSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'uuid'

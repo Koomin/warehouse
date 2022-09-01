@@ -9,3 +9,4 @@ class StoreViewSet(viewsets.ModelViewSet):
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
     permission_classes = []
+    lookup_field = 'uuid'
