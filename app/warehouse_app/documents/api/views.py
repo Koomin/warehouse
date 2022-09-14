@@ -8,7 +8,7 @@ from documents.api.serializers import DocumentSerializer, DocumentItemSerializer
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
-    queryset = Document.objects.all()
+    queryset = Document.objects.all().order_by('-document_date')
     serializer_class = DocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'uuid'
@@ -19,6 +19,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
         if documents:
             serializer = self.get_serializer(documents, many=True)
             return Response(serializer.data)
+
+
+class OrderViewSet(DocumentViewSet):
+    queryset = Document.objects.filter(document_type__short_name__in=['CUK', 'PIEK']).order_by('-document_date')
 
 
 class DocumentItemViewSet(viewsets.ModelViewSet):
@@ -32,6 +36,9 @@ class DocumentItemViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        document_uuid = serializer.data[0].get('document')
+        document = Document.objects.get(uuid=document_uuid)
+        document.save_to_optima()
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=True, methods=['get'])

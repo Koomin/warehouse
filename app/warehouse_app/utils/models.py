@@ -1,6 +1,6 @@
 from documents.models import DocumentType, Document, DocumentItem, DocumentGroup
 from stores.models import Store
-from products.models import Product, Unit
+from products.models import Product, Unit, ProductAvailability
 
 
 class OptimaProduct:
@@ -68,11 +68,11 @@ class OptimaProduct:
 
     def create_product(self):
         defaults = {
-                'name': self.optima_name,
-                'code': self.optima_code,
-                'pkwiu': self.pkwiu,
-                'unit': self.get_or_create_unit()
-            }
+            'name': self.optima_name,
+            'code': self.optima_code,
+            'pkwiu': self.pkwiu,
+            'unit': self.get_or_create_unit()
+        }
         if self.type == 5:
             defaults['retail_value'] = self.optima_value
         else:
@@ -80,6 +80,43 @@ class OptimaProduct:
 
         Product.objects.update_or_create(
             optima_id=self.optima_id,
+            defaults=defaults
+        )
+
+
+class OptimaProductAvailability:
+    query = 'SELECT TOP(1) TwrIlosci.TwI_TwIId, TwrIlosci.TwI_TwrId, TwrIlosci.TwI_MagId, TwrIlosci.TwI_Data,' \
+            ' TwrIlosci.TwI_Ilosc, TwrIlosci.TwI_Wartosc ' \
+            'FROM CDN.TwrIlosci as TwrIlosci ' \
+            'WHERE TwrIlosci.TwI_TwrId = {0} AND TwrIlosci.TwI_MagId = {1} ' \
+            'ORDER BY TwrIlosci.TwI_Data DESC, TwrIlosci.TwI_TwIId DESC '
+
+    def __init__(self, data_row, product, store, create=True):
+        self.data_row = data_row
+        self.product = product
+        self.store = store
+        self.quantity = self.get_quantity()
+        self.value = self.get_value()
+        if create:
+            self.create_product_availability()
+
+    def __str__(self):
+        return f'{self.product.name} - {self.store.name} - {self.quantity} {self.product.unit.short_name}'
+
+    def get_quantity(self):
+        return self.data_row[4]
+
+    def get_value(self):
+        return self.data_row[5]
+
+    def create_product_availability(self):
+        defaults = {
+            'quantity': self.quantity,
+            'value': self.value,
+        }
+        ProductAvailability.objects.update_or_create(
+            product=self.product,
+            store=self.store,
             defaults=defaults
         )
 
@@ -177,7 +214,7 @@ class OptimaDocumentType:
 
 class OptimaDocument:
     query = 'SELECT TrN_TrNID, TrN_DDfId, TrN_NumerPelny, TrN_RazemNetto, TrN_RazemVat,TrN_RazemBrutto, TrN_MagZrdId,' \
-            ' TrN_MagDocId FROM CDN.TraNag WHERE TrN_DDfId = {0}'
+            ' TrN_MagDocId, TrN_DataDok, TrN_DataWys FROM CDN.TraNag WHERE TrN_DDfId = {0}'
 
     def __init__(self, data_row, create=True):
         self.data_row = data_row
@@ -189,6 +226,8 @@ class OptimaDocument:
         self.value_gross = self.get_value_gross()
         self.source_store = self.get_source_store()
         self.destination_store = self.get_destination_store()
+        self.document_date = self.get_document_date()
+        self.document_creation_date = self.get_document_creation_date()
         if create:
             self.create_document()
 
@@ -227,6 +266,12 @@ class OptimaDocument:
             store = None
         return store
 
+    def get_document_date(self):
+        return self.data_row[8]
+
+    def get_document_creation_date(self):
+        return self.data_row[9]
+
     def create_document(self):
         Document.objects.update_or_create(
             optima_id=self.optima_id,
@@ -238,6 +283,8 @@ class OptimaDocument:
                 'value_gross': self.value_gross,
                 'source_store': self.source_store,
                 'destination_store': self.destination_store,
+                'document_date': self.document_date,
+                'document_creation_date': self.document_creation_date,
                 'exported': True
             }
         )

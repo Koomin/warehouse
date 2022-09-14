@@ -4,6 +4,7 @@ import logging
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
+from utils.tasks import products_refresh
 from utils.helpers import WarehouseDocument, WarehouseDocumentItem
 from utils.utils import OptimaConnection
 from products.models import Product
@@ -37,12 +38,8 @@ class DocumentGroup(WarehouseModel):
 
 
 class Document(WarehouseModel):
-    class Types(models.TextChoices):
-        OPTIMA = 'optima', _('Optima')
-        PRODUCTION = 'production', _('Production')
-
     optima_id = models.PositiveIntegerField(null=True, blank=True)
-    document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE, null=True, blank=True)
+    document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE, null=False, blank=False)
     optima_full_number = models.CharField(max_length=255, null=True, blank=True)
     value_net = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=False, default=0.00)
     value_vat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=False, default=0.00)
@@ -52,7 +49,8 @@ class Document(WarehouseModel):
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
     document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='group')
-    type = models.CharField(max_length=11, choices=Types.choices, blank=False, null=False, default=Types.OPTIMA)
+    document_date = models.DateTimeField(auto_now_add=True)
+    document_creation_date = models.DateTimeField(auto_now_add=True)
     exported = models.BooleanField(default=False)
 
     def __str__(self):
@@ -63,6 +61,11 @@ class Document(WarehouseModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+    def refresh_products_availability(self):
+        products = list(self.document_items.values_list('product_id', flat=True))
+        stores = [self.destination_store.id, self.source_store.id]
+        products_refresh.apply_async(kwargs={'products': products, 'stores': stores}, retry=False)
 
     @transaction.atomic
     def save_to_optima(self):
@@ -80,12 +83,14 @@ class Document(WarehouseModel):
                     optima_document_item_id = optima_document_item.export_to_optima()
                     document_item.optima_id = optima_document_item_id
                     document_item.save()
-            except Exception:
+            except Exception as e:
+                print(e)
                 connection.cnxn.rollback()
             else:
                 self.exported = True
                 self.optima_full_number = optima_document.number_string
                 self.save()
+                self.refresh_products_availability()
                 connection.cnxn.commit()
                 saved = True
             finally:
