@@ -48,10 +48,12 @@ class Document(WarehouseModel):
                                      related_name='document_source')
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
-    document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='group')
+    document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True,
+                                       related_name='group')
     document_date = models.DateTimeField(auto_now_add=True)
     document_creation_date = models.DateTimeField(auto_now_add=True)
     exported = models.BooleanField(default=False)
+    realized = models.BooleanField(default=False)
 
     def __str__(self):
         if self.document_type:

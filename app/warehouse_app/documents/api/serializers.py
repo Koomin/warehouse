@@ -21,11 +21,11 @@ class DocumentGroupSerializer(serializers.ModelSerializer):
 class DocumentSerializer(serializers.ModelSerializer):
     document_type = serializers.SlugRelatedField(slug_field='uuid', queryset=DocumentType.objects.all(), required=False)
     document_type_name = serializers.CharField(source='document_type.short_name', allow_null=True, required=False)
-    destination_store = serializers.SlugRelatedField(slug_field='uuid', queryset=Store.objects.all(), required=True)
+    destination_store = serializers.SlugRelatedField(slug_field='uuid', queryset=Store.objects.all(), required=False)
     destination_store_name = serializers.CharField(source='destination_store.short_name', allow_null=True,
                                                    required=False)
     source_store_name = serializers.CharField(source='source_store.short_name', allow_null=True, required=False)
-    source_store = serializers.SlugRelatedField(slug_field='uuid', queryset=Store.objects.all())
+    source_store = serializers.SlugRelatedField(slug_field='uuid', queryset=Store.objects.all(), required=False)
     document_group_name = serializers.CharField(source='document_group.name', required=False)
     document_group = serializers.SlugRelatedField(slug_field='uuid', queryset=DocumentGroup.objects.all(),
                                                   allow_null=True, required=False)
@@ -36,7 +36,8 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ['uuid', 'optima_id', 'document_type', 'document_type_name', 'optima_full_number', 'value_net',
                   'value_gross', 'source_store', 'source_store_name', 'destination_store', 'destination_store_name',
-                  'document_group', 'document_group_name', 'exported', 'document_date', 'document_creation_date']
+                  'document_group', 'document_group_name', 'exported', 'document_date', 'document_creation_date',
+                  'realized']
 
 
 class DocumentItemSerializer(serializers.ModelSerializer):
