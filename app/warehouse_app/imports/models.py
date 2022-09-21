@@ -11,6 +11,7 @@ class Import(WarehouseModel):
     IMPORT_DOCUMENTS = 'import_documents'
     IMPORT_DOCUMENTS_GROUPS = 'import_documents_groups'
     IMPORT_STORES = 'import_stores'
+    IMPORT_PRODUCTS_AVAILABILITY = 'import_products_availability'
     FULL_IMPORT = 'full_import'
     IMPORT_TYPES = (
         (IMPORT_STORES, 'Import stores'),
@@ -18,6 +19,7 @@ class Import(WarehouseModel):
         (IMPORT_PRODUCTS, 'Import products'),
         (IMPORT_DOCUMENTS_TYPES, 'Import documents types'),
         (IMPORT_DOCUMENTS_GROUPS, 'Import documents groups'),
+        (IMPORT_PRODUCTS_AVAILABILITY, 'Import products availability'),
         (FULL_IMPORT, 'Full import'),
     )
     method = models.CharField(choices=IMPORT_TYPES, max_length=120, null=False, blank=False)

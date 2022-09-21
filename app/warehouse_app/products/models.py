@@ -1,4 +1,6 @@
 from django.db import models
+
+from stores.models import Store
 from warehouse.models import WarehouseModel
 
 
@@ -29,3 +31,19 @@ class Product(WarehouseModel):
 
     def __str__(self):
         return f'{self.code} - {self.name}'
+
+
+class ProductAvailability(WarehouseModel):
+    product = models.ForeignKey(Product, null=False, blank=False, on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, null=False, blank=False, on_delete=models.CASCADE)
+    quantity = models.DecimalField(max_digits=12, decimal_places=4, default=0.0000)
+    value = models.DecimalField(max_digits=12, decimal_places=4, default=0.0000)
+    unit = models.ForeignKey(Unit, null=True, blank=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.product.code} - {self.store.short_name} - {self.quantity} {self.unit.short_name}'
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.unit = self.product.unit
+        super().save(*args, **kwargs)

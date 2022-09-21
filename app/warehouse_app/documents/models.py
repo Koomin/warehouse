@@ -2,7 +2,9 @@ import decimal
 import logging
 
 from django.db import models, transaction
+from django.utils.translation import gettext_lazy as _
 
+from utils.tasks import products_refresh
 from utils.helpers import WarehouseDocument, WarehouseDocumentItem
 from utils.utils import OptimaConnection
 from products.models import Product
@@ -46,14 +48,26 @@ class Document(WarehouseModel):
                                      related_name='document_source')
     destination_store = models.ForeignKey(Store, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='document_destination')
-    document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='group')
+    document_group = models.ForeignKey(DocumentGroup, on_delete=models.CASCADE, null=True, blank=True,
+                                       related_name='group')
+    document_date = models.DateTimeField(auto_now_add=True)
+    document_creation_date = models.DateTimeField(auto_now_add=True)
     exported = models.BooleanField(default=False)
+    realized = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.document_type.name} - {self.value_net}'
+        if self.document_type:
+            return f'{self.document_type.name} - {self.value_net}'
+        else:
+            return f'{self.type} - {self.value_net}'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+    def refresh_products_availability(self):
+        products = list(self.document_items.values_list('product_id', flat=True))
+        stores = [self.destination_store.id, self.source_store.id]
+        products_refresh.apply_async(kwargs={'products': products, 'stores': stores}, retry=False)
 
     @transaction.atomic
     def save_to_optima(self):
@@ -71,12 +85,14 @@ class Document(WarehouseModel):
                     optima_document_item_id = optima_document_item.export_to_optima()
                     document_item.optima_id = optima_document_item_id
                     document_item.save()
-            except Exception:
+            except Exception as e:
+                print(e)
                 connection.cnxn.rollback()
             else:
                 self.exported = True
                 self.optima_full_number = optima_document.number_string
                 self.save()
+                self.refresh_products_availability()
                 connection.cnxn.commit()
                 saved = True
             finally:
@@ -107,7 +123,10 @@ class DocumentItem(WarehouseModel):
     gross_price = models.DecimalField(max_digits=12, decimal_places=4, blank=True, null=False)
 
     def __str__(self):
-        return f'{self.document.document_type.short_name} - {self.product.name} - {self.net_price}'
+        if self.document.document_type:
+            return f'{self.document.document_type.short_name} - {self.product.name} - {self.net_price}'
+        else:
+            return f'{self.document.type} - {self.product.name} - {self.net_price}'
 
     def save(self, *args, **kwargs):
         self.net_price = decimal.Decimal(self.product.value * self.quantity).quantize(

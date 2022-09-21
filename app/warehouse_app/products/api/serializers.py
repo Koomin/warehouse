@@ -5,13 +5,13 @@ from products.models import Product, Unit, ProductCategory
 class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
-        fields = ['id', 'short_name', ]
+        fields = ['uuid', 'short_name', ]
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
-        fields = ['name', 'product_code', ]
+        fields = ['uuid', 'name', 'product_code', ]
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -20,5 +20,5 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'code', 'pkwiu', 'optima_id', 'category', 'unit', 'unit_name', 'value',
+        fields = ['uuid', 'name', 'code', 'pkwiu', 'optima_id', 'category', 'unit', 'unit_name', 'value',
                   'retail_value', 'category_name', ]

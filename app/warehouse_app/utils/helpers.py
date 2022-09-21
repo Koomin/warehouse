@@ -4,6 +4,7 @@ import datetime
 class WarehouseDocument:
 
     def __init__(self, document, cursor):
+        self.bufor = 0
         self.today = datetime.date.today()
         self.current_year = self.today.year
         self.now = datetime.datetime.now()
@@ -18,7 +19,7 @@ class WarehouseDocument:
         self.value_gross = document.value_gross
         self.value_vat = document.value_vat
         self.source_store = document.source_store.optima_id
-        self.destination_store = document.destination_store.optima_id
+        self.destination_store = document.destination_store.optima_id if document.destination_store else ''
         self.data_dok = self.today
         self.data_wys = self.today
         self.data_ope = self.today
@@ -97,7 +98,7 @@ class WarehouseDocument:
                             '?,?,?)',
                             self.document_type_optima_id, self.document_type_optima_class, self.document_type_numbering,
                             self.current_number,
-                            1, 0, self.data_dok, self.data_wys,
+                            self.bufor, 0, self.data_dok, self.data_wys,
                             self.data_ope, self.data_kur, 0, 0,
                             0, 0, 0, self.document_type_details_id,
                             1, 1, ".", 1,
@@ -145,6 +146,10 @@ class WarehouseDocumentItem:
         self.net_price = document_item.net_price
         self.gross_price = document_item.gross_price
         self.currency = 'PLN'
+        self.document_date = datetime.datetime.fromisoformat(
+            f'{document_item.document.document_date.date()} 00:00:00.000')
+        self.document_creation_date = datetime.datetime.fromisoformat(
+            f'{document_item.document.document_creation_date.date()} 00:00:00.000')
         self.quantity = document_item.quantity
         self.ssw = document_item.product.pkwiu
         self.vat = 5.00
@@ -214,8 +219,8 @@ class WarehouseDocumentItem:
                             0, 0, -1, 1.00,
                             0.00, 0.00, 0.00, 0.000,
                             0, 0, 0, 0,
-                            0.00, 0, datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
-                            datetime.datetime(2022, 6, 30, 0, 0, 0, 0),
+                            0.00, 0, self.document_date,
+                            self.document_creation_date,
                             "", "", "", "",
                             "", "", "", "",
                             "", "", "", "",
