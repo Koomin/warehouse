@@ -37,7 +37,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = ['uuid', 'optima_id', 'document_type', 'document_type_name', 'optima_full_number', 'value_net',
                   'value_gross', 'source_store', 'source_store_name', 'destination_store', 'destination_store_name',
                   'document_group', 'document_group_name', 'exported', 'document_date', 'document_creation_date',
-                  'realized']
+                  'realized', 'issued']
 
 
 class DocumentItemSerializer(serializers.ModelSerializer):

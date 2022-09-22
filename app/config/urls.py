@@ -8,12 +8,13 @@ from rest_framework_simplejwt.views import (
 )
 
 from documents.api.views import DocumentViewSet, DocumentItemViewSet, DocumentTypeViewSet, OrderViewSet
-from products.api.views import ProductViewSet, UnitViewSet, ProductCategoryViewSet
+from products.api.views import ProductViewSet, UnitViewSet, ProductCategoryViewSet, ProductAvailabilityViewSet
 from stores.api.views import StoreViewSet
 from warehouse_auth.api.authentication import TokenWithUserObtainPairView
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
+router.register(r'products-availability', ProductAvailabilityViewSet)
 router.register(r'units', UnitViewSet)
 router.register(r'product-category', ProductCategoryViewSet)
 router.register(r'store', StoreViewSet)

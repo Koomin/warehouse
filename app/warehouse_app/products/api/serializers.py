@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from products.models import Product, Unit, ProductCategory
+from products.models import Product, Unit, ProductCategory, ProductAvailability
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -22,3 +22,16 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['uuid', 'name', 'code', 'pkwiu', 'optima_id', 'category', 'unit', 'unit_name', 'value',
                   'retail_value', 'category_name', ]
+
+
+class ProductAvailabilitySerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name')
+    product_code = serializers.CharField(source='product.code')
+    store_short_name = serializers.CharField(source='store.short_name')
+    store_name = serializers.CharField(source='store.name')
+    unit = serializers.CharField(source='unit.short_name')
+
+    class Meta:
+        model = ProductAvailability
+        fields = ['uuid', 'product', 'product_name', 'product_code', 'store_name', 'store_short_name', 'quantity',
+                  'value', 'unit']

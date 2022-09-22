@@ -1,8 +1,9 @@
 from rest_framework import viewsets, status
 from rest_framework import permissions
 
-from products.models import Product, Unit, ProductCategory
-from products.api.serializers import ProductSerializer, UnitSerializer, ProductCategorySerializer
+from products.models import Product, Unit, ProductCategory, ProductAvailability
+from products.api.serializers import ProductSerializer, UnitSerializer, ProductCategorySerializer, \
+    ProductAvailabilitySerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -22,5 +23,12 @@ class UnitViewSet(viewsets.ModelViewSet):
 class ProductCategoryViewSet(viewsets.ModelViewSet):
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'uuid'
+
+
+class ProductAvailabilityViewSet(viewsets.ModelViewSet):
+    queryset = ProductAvailability.objects.all()
+    serializer_class = ProductAvailabilitySerializer
     permission_classes = [permissions.IsAuthenticated]
     lookup_field = 'uuid'

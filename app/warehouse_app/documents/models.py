@@ -54,6 +54,7 @@ class Document(WarehouseModel):
     document_creation_date = models.DateTimeField(auto_now_add=True)
     exported = models.BooleanField(default=False)
     realized = models.BooleanField(default=False)
+    issued = models.BooleanField(default=False)
 
     def __str__(self):
         if self.document_type:

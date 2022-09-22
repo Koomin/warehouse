@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework import permissions
 from rest_framework.decorators import action
@@ -15,14 +16,22 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def type(self, request, uuid=None):
-        documents = Document.objects.filter(document_type__uuid=uuid)
+        documents = self.queryset.filter(document_type__uuid=uuid)
         if documents:
             serializer = self.get_serializer(documents, many=True)
             return Response(serializer.data)
 
 
 class OrderViewSet(DocumentViewSet):
-    queryset = Document.objects.filter(document_type__short_name__in=['CUK', 'PIEK']).order_by('-document_date')
+    queryset = Document.objects.filter(~Q(issued=True, realized=True),
+                                       document_type__short_name__in=['CUK', 'PIEK']).order_by('-document_date')
+
+    @action(detail=True, methods=['get'])
+    def type(self, request, uuid=None):
+        documents = self.queryset.filter(document_type__uuid=uuid)
+        if documents:
+            serializer = self.get_serializer(documents, many=True)
+            return Response(serializer.data)
 
 
 class DocumentItemViewSet(viewsets.ModelViewSet):
