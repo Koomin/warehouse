@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: Warehouse
+  description: |-
+    Warehouse server to manage Bakery.
+
+  contact:
+    email: bartoszkominko@icloud.com
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+tags:
+  - name: stores
+    description: Access to <b>stores</b>
+paths:
+  /stores/:
+    get:
+        tags:
+          - stores
+        summary: Retrieve all stores
+        description: Returns all stores
+        operationId: getStores
+        responses:
+          '200':
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Store'
+    post:
+      tags:
+        - stores
+      summary: Add a new store
+      description: Add a new store
+      operationId: addStore
+      requestBody:
+        description: Create a new store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '400':
+          description: Invalid provided data
+
+  /stores/{uuid}/:
+    get:
+        tags:
+          - stores
+        summary: Find store by UUID
+        description: Returns a single store
+        operationId: getStoreById
+        parameters:
+          - name: uuid
+            in: path
+            description: UUID of store to return
+            required: true
+            schema:
+              type: string
+              format: uuid4
+        responses:
+          '200':
+            description: successful operation
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Store'
+          '400':
+            description: Invalid ID supplied
+          '404':
+            description: Store not found
+
+    put:
+      tags:
+        - stores
+      summary: Update an existing store
+      description: Update an existing store by UUID
+      operationId: updateStore
+      parameters:
+          - name: uuid
+            in: path
+            description: UUID of store to return
+            required: true
+            schema:
+              type: string
+              format: uuid4
+      requestBody:
+        description: Update an existent store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '400':
+          description: Invalid UUID supplied or validation exception
+        '404':
+          description: Store not found
+
+    delete:
+      tags:
+        - stores
+      summary: Deletes a store
+      description: Delete a store
+      operationId: deleteStore
+      parameters:
+        - name: uuid
+          in: path
+          description: Store UUID to delete
+          required: true
+          schema:
+            type: string
+            format: uuid4
+      responses:
+        '204':
+          description: Successfully deleted
+        '400':
+          description: Invalid store UUID value
+
+components:
+  schemas:
+    Store:
+      required:
+        - optima_id
+        - short_name
+        - register
+        - status
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        uuid:
+          type: string
+          format: uuid4
+          example: 71c7b505-71a1-4e3d-9730-31661b80e04c
+        name:
+          type: string
+          example: CityCenter
+        short_name:
+          type: string
+          example: CC
+        description:
+          type: string
+          example: 'Short example description.'
+        register:
+          type: string
+          example: 'Register name'
+        status:
+          type: integer
+          description: Store status 0 - ACTIVE , 1 - INACTIVE
+          enum:
+            - 0
+            - 1
+    StoreCreate:
+      required:
+        - optima_id
+        - short_name
+        - register
+        - status
+      type: object
+      properties:
+        name:
+          type: string
+          example: CityCenter
+        short_name:
+          type: string
+          example: CC
+        description:
+          type: string
+          example: 'Short example description.'
+        register:
+          type: string
+          example: 'Register name'
+        status:
+          type: integer
+          description: Store status 0 - ACTIVE , 1 - INACTIVE
+          enum:
+            - 0
+            - 1
+  requestBodies:
+    Store:
+      description: Store object that needs to be added
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Store'
