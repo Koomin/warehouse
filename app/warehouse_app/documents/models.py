@@ -2,7 +2,6 @@ import decimal
 import logging
 
 from django.db import models, transaction
-from django.utils.translation import gettext_lazy as _
 
 from utils.tasks import products_refresh
 from utils.helpers import WarehouseDocument, WarehouseDocumentItem
