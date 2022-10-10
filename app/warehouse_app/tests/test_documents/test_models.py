@@ -4,7 +4,6 @@ from documents.models import Document, DocumentType, DocumentItem
 from products.models import Product, Unit
 from stores.models import Store
 
-
 class DocumentTest(TestCase):
 
     def __init__(self, *args):

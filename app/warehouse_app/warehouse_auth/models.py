@@ -35,7 +35,10 @@ class WarehouseUser(AbstractUser):
         return self.username
 
     def get_permission_table(self):
-        models_permission = self.group.front_permissions.all()
+        try:
+            models_permission = self.group.front_permissions.all()
+        except AttributeError:
+            models_permission = []
         permission_dict = {
             'models': [],
             'actions': {}
