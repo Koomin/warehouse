@@ -27,4 +27,4 @@ jobs:
         pip install -r app/requirements/local.txt
     - name: Run Tests
       run: |
-        coverage run app/manage.py test -v 2
+        python app/manage.py test
