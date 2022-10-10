@@ -7,7 +7,7 @@ from tests.test_stores.factories import StoreFactory
 @pytest.mark.django_db
 class TestStoreEndpoints:
 
-    endpoint = '/api/store/'
+    endpoint = '/api/v1/stores/'
 
     def test_list(self, api_client):
         StoreFactory.create_batch(5)

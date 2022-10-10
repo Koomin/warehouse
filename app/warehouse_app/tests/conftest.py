@@ -13,7 +13,7 @@ def create_user():
 
 
 def api_authenticate(api_client):
-    endpoint = '/api/token/'
+    endpoint = '/api/v1/token/'
     response = api_client.post(endpoint, data={'username': 'user', 'password': 'password'})
     return response.data.get('access')
 
