@@ -7,7 +7,12 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from documents.api.views import DocumentViewSet, DocumentItemViewSet, DocumentTypeViewSet, OrderViewSet
+from documents.api.views import (DocumentViewSet,
+                                 DocumentItemViewSet,
+                                 DocumentTypeViewSet,
+                                 OrderViewSet,
+                                 OrderItemViewSet,
+                                 )
 from products.api.views import ProductViewSet, UnitViewSet, ProductCategoryViewSet, ProductAvailabilityViewSet
 from stores.api.views import StoreViewSet
 from warehouse_auth.api.authentication import TokenWithUserObtainPairView
@@ -22,6 +27,7 @@ router.register(r'documents', DocumentViewSet)
 router.register(r'document-item', DocumentItemViewSet)
 router.register(r'document-types', DocumentTypeViewSet)
 router.register(r'orders', OrderViewSet)
+router.register(r'order-item', OrderItemViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

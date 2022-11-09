@@ -22,18 +22,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
 
-class OrderViewSet(DocumentViewSet):
-    queryset = Document.objects.filter(~Q(issued=True, realized=True),
-                                       document_type__short_name__in=['CUK', 'PIEK']).order_by('-document_date')
-
-    @action(detail=True, methods=['get'])
-    def type(self, request, uuid=None):
-        documents = self.queryset.filter(document_type__uuid=uuid)
-        if documents:
-            serializer = self.get_serializer(documents, many=True)
-            return Response(serializer.data)
-
-
 class DocumentItemViewSet(viewsets.ModelViewSet):
     queryset = DocumentItem.objects.all()
     serializer_class = DocumentItemSerializer
@@ -56,6 +44,31 @@ class DocumentItemViewSet(viewsets.ModelViewSet):
         if document_items:
             serializer = self.get_serializer(document_items, many=True)
             return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def store(self, request, uuid=None):
+        document_items = DocumentItem.objects.filter(document__source_store__uuid=uuid)
+        if document_items:
+            serializer = self.get_serializer(document_items, many=True)
+            return Response(serializer.data)
+
+
+class OrderViewSet(DocumentViewSet):
+    queryset = Document.objects.filter(~Q(issued=True, realized=True),
+                                       document_type__short_name__in=['CUK', 'PIEK']).order_by('-document_date')
+
+    @action(detail=True, methods=['get'])
+    def type(self, request, uuid=None):
+        documents = self.queryset.filter(document_type__uuid=uuid)
+        if documents:
+            serializer = self.get_serializer(documents, many=True)
+            return Response(serializer.data)
+
+
+class OrderItemViewSet(DocumentItemViewSet):
+    queryset = DocumentItem.objects.filter(~Q(document__issued=True, document__realized=True),
+                                           document__document_type__short_name__in=['CUK', 'PIEK']).order_by(
+        '-document__document_date')
 
 
 class DocumentTypeViewSet(viewsets.ModelViewSet):
