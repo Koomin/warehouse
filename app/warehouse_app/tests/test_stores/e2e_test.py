@@ -11,9 +11,7 @@ class TestStoreEndpoints:
 
     def test_list(self, api_client):
         StoreFactory.create_batch(5)
-        print(api_client.credentials)
         response = api_client.get(self.endpoint)
-        print(response.data)
         assert response.status_code == 200
         assert len(json.loads(response.content)) == 5
 
