@@ -22,3 +22,8 @@ def set_active(modeladmin, request, queryset):
 @admin.action(description='Change status to inactive')
 def set_inactive(modeladmin, request, queryset):
     queryset.update(is_active=False)
+
+
+@admin.action(description='Change status to realized')
+def change_issued(modeladmin, request, queryset):
+    queryset.update(issued=True, realized=True)

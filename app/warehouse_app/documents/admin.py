@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from documents.actions import export_to_optima, set_active, set_inactive
+from documents.actions import export_to_optima, set_active, set_inactive, change_issued
 from documents.models import DocumentType, Document, DocumentItem, DocumentGroup
 from warehouse.admin import WarehouseAdmin
 
@@ -31,4 +31,4 @@ class DocumentAdmin(WarehouseAdmin):
     inlines = [DocumentItemInline, ]
     autocomplete_fields = ['document_type', 'source_store', 'destination_store']
     list_filter = ['document_type']
-    actions = (export_to_optima,)
+    actions = (export_to_optima, change_issued)

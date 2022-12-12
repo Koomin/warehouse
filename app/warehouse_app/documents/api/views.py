@@ -1,11 +1,16 @@
-from django.db.models import Q
+import decimal
+
+from django.db.models import Q, Sum, Subquery, OuterRef
+from django.db.models.functions import Coalesce
 from rest_framework import viewsets, status
 from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from documents.models import Document, DocumentItem, DocumentType
-from documents.api.serializers import DocumentSerializer, DocumentItemSerializer, DocumentTypeSerializer
+from documents.api.serializers import DocumentSerializer, DocumentItemSerializer, DocumentTypeSerializer, \
+    OrderItemsSumSerializer
+from products.models import Product
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -66,9 +71,17 @@ class OrderViewSet(DocumentViewSet):
 
 
 class OrderItemViewSet(DocumentItemViewSet):
-    queryset = DocumentItem.objects.filter(~Q(document__issued=True, document__realized=True),
-                                           document__document_type__short_name__in=['CUK', 'PIEK']).order_by(
-        '-document__document_date')
+    serializer_class = OrderItemsSumSerializer
+
+    def get_queryset(self):
+        products_filter = Q(~Q(document_items__document__issued=True, document_items__document__realized=True),
+                                 document_items__document__document_type__short_name__in=['CUK', 'PIEK'])
+        products = DocumentItem.objects.filter(~Q(document__issued=True, document__realized=True),
+                                               document__document_type__short_name__in=['CUK', 'PIEK']).distinct(
+            'product').values_list('product__pk', flat=True)
+        products_sum = Product.objects.filter(pk__in=products).annotate(
+            quantity_sum=Sum('document_items__quantity', filter=products_filter))
+        return products_sum
 
 
 class DocumentTypeViewSet(viewsets.ModelViewSet):

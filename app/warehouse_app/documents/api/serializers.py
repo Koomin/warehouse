@@ -53,3 +53,14 @@ class DocumentItemSerializer(serializers.ModelSerializer):
         model = DocumentItem
         fields = ['uuid', 'optima_id', 'document', 'product', 'product_name', 'product_value', 'product_retail_value',
                   'product_unit', 'quantity', 'net_price', 'gross_price']
+
+
+class OrderItemsSumSerializer(serializers.BaseSerializer):
+    def to_representation(self, instance):
+        return {
+            'product_name': instance.name,
+            'quantity': instance.quantity_sum,
+            'uuid': instance.uuid,
+            'product_unit': instance.unit.short_name
+
+        }
